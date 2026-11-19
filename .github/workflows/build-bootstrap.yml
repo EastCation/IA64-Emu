@@ -1,0 +1,194 @@
+name: Build QEMU bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      qemu_ref:
+        description: "syunnPC/qemu-system-ia64 ref to build"
+        required: false
+        default: main
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  QEMU_REPOSITORY: https://github.com/syunnPC/qemu-system-ia64.git
+  QEMU_REF: ${{ github.event.inputs.qemu_ref || 'main' }}
+
+jobs:
+  firmware:
+    name: IA-64 firmware (Fedora cross toolchain)
+    runs-on: ubuntu-24.04
+    container: fedora:44
+    steps:
+      - name: Install firmware build dependencies
+        run: |
+          dnf --assumeyes --setopt=install_weak_deps=False install \
+            binutils-ia64-linux-gnu \
+            coreutils \
+            gcc-ia64-linux-gnu \
+            git \
+            gzip \
+            make \
+            python3 \
+            tar
+
+      - name: Clone QEMU IA-64 fork
+        run: git clone --depth 1 --branch "$QEMU_REF" "$QEMU_REPOSITORY" qemu-src
+
+      - name: Build firmware
+        run: |
+          make -C qemu-src/roms/ia64-firmware -j"$(nproc)"
+          mkdir -p firmware
+          cp qemu-src/roms/ia64-firmware/ia64-firmware.bin \
+             qemu-src/roms/ia64-firmware/ia64-firmware.elf \
+             qemu-src/roms/ia64-firmware/ia64-firmware.map \
+             qemu-src/roms/ia64-firmware/ia64-firmware.sections \
+             firmware/
+          ls -l firmware
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ia64-firmware
+          path: firmware/
+          if-no-files-found: error
+
+  bootstrap:
+    name: Bootstrap ${{ matrix.abi }}
+    needs: firmware
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04-arm
+            abi: arm64-v8a
+            arch: aarch64
+          - runner: ubuntu-24.04
+            abi: x86_64
+            arch: x86_64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ia64-firmware
+          path: firmware
+
+      - name: Install QEMU build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bison \
+            build-essential \
+            file \
+            flex \
+            gettext \
+            git \
+            libglib2.0-dev \
+            libpixman-1-dev \
+            libslirp-dev \
+            ninja-build \
+            pkg-config \
+            python3 \
+            python3-pip \
+            python3-setuptools \
+            python3-venv \
+            python3-wheel \
+            unzip \
+            zip \
+            zlib1g-dev
+
+      - name: Clone QEMU IA-64 fork
+        run: git clone --depth 1 --branch "$QEMU_REF" "$QEMU_REPOSITORY" qemu-src
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          ../qemu-src/configure \
+            --target-list=ia64-softmmu \
+            --prefix=/usr/local \
+            --datadir=/usr/local/share/qemu \
+            --disable-gtk \
+            --disable-sdl \
+            --disable-opengl \
+            --disable-docs \
+            --disable-werror \
+            --disable-debug-info \
+            --disable-rust \
+            --enable-strip \
+            --enable-vnc \
+            --enable-slirp
+
+      - name: Build headless emulator
+        run: |
+          ninja -C build -j"$(nproc)" qemu-system-ia64 qemu-img
+          file build/qemu-system-ia64
+          build/qemu-system-ia64 --version
+
+      - name: Package bootstrap
+        run: |
+          chmod +x scripts/make_bootstrap.sh
+          scripts/make_bootstrap.sh \
+            build "${{ matrix.abi }}" "${{ matrix.arch }}" out \
+            qemu-src firmware
+          ls -lh out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bootstrap-${{ matrix.abi }}
+          path: out/bootstrap-${{ matrix.abi }}.zip*
+          if-no-files-found: error
+
+  apk:
+    name: Debug APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IA64-Emu-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+  release:
+    name: Publish release assets
+    needs:
+      - bootstrap
+      - apk
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bootstrap-*
+          path: dist
+          merge-multiple: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: IA64-Emu-debug-apk
+          path: dist
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+

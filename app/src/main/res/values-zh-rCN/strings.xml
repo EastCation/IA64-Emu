@@ -1,0 +1,152 @@
+<resources>
+    <string name="app_name">IA64-Emu</string>
+    <string name="action_settings">设置</string>
+
+    <string name="nav_vm_list">虚拟机</string>
+    <string name="nav_vm_edit">编辑虚拟机</string>
+    <string name="nav_vm_new">新建虚拟机</string>
+    <string name="nav_display">显示</string>
+    <string name="nav_serial">串口控制台</string>
+    <string name="nav_settings">设置</string>
+
+    <string name="vm_list_empty_title">还没有虚拟机</string>
+    <string name="vm_list_empty_body">新建一台 IA-64 虚拟机，添加磁盘或 ISO 镜像，然后使用内置 QEMU 启动。</string>
+    <string name="bootstrap_missing_title">尚未安装 QEMU 引导包</string>
+    <string name="bootstrap_missing_body">请先安装 IA64-Emu 引导包。它包含 qemu-system-ia64、IA-64 EFI 固件和客户机 C 运行库。</string>
+    <string name="bootstrap_ready_title">QEMU 引导包已就绪</string>
+    <string name="install_bootstrap">安装引导包</string>
+    <string name="fab_new_vm">新建虚拟机</string>
+
+    <string name="btn_start">启动</string>
+    <string name="btn_stop">停止</string>
+    <string name="btn_display">画面</string>
+    <string name="btn_edit">编辑</string>
+    <string name="btn_delete">删除</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_cancel">取消</string>
+    <string name="btn_browse">选择…</string>
+    <string name="btn_clear">清除</string>
+    <string name="btn_close">关闭</string>
+
+    <string name="status_running">运行中</string>
+    <string name="status_starting">启动中</string>
+    <string name="status_stopping">停止中</string>
+    <string name="status_stopped">已停止</string>
+    <string name="status_error">错误</string>
+
+    <string name="label_name">名称</string>
+    <string name="hint_name">我的 Itanium 虚拟机</string>
+    <string name="label_machine">机型</string>
+    <string name="label_cpu">CPU 型号</string>
+    <string name="label_memory">内存</string>
+    <string name="label_cpus">虚拟 CPU</string>
+    <string name="label_video">显卡</string>
+    <string name="label_ati_model">ATI 型号</string>
+    <string name="label_resolution">分辨率</string>
+    <string name="label_width">宽度</string>
+    <string name="label_height">高度</string>
+    <string name="label_disk1">磁盘 1</string>
+    <string name="label_disk2">磁盘 2</string>
+    <string name="label_cdrom">CD / DVD 镜像</string>
+    <string name="btn_create_disk">新建磁盘…</string>
+    <string name="dialog_new_disk">创建空白磁盘</string>
+    <string name="label_disk_name">文件名</string>
+    <string name="label_disk_size_gb">大小（GiB）</string>
+    <string name="btn_create">创建</string>
+    <string name="disk_created">磁盘已创建</string>
+    <string name="disk_exists">同名文件已存在</string>
+    <string name="disk_slots_full">磁盘 1 和磁盘 2 都已配置</string>
+    <string name="disk_size_invalid">请输入 1–2048 GiB 之间的大小</string>
+    <string name="label_network">用户模式网络</string>
+    <string name="label_nic_model">网卡型号</string>
+    <string name="label_serial_console">使用串口作为固件控制台</string>
+    <string name="label_expose_vnc">向局域网开放 VNC</string>
+    <string name="label_vnc_address">连接到 VNC 地址（可选）</string>
+    <string name="hint_vnc_address">192.168.1.20:5900</string>
+    <string name="label_extra_args">额外 QEMU 参数</string>
+    <string name="hint_extra_args">-device usb-tablet</string>
+    <string name="label_reset_nvram">保存时重置 EFI NVRAM</string>
+    <string name="label_advanced">高级</string>
+    <string name="section_storage">存储</string>
+    <string name="section_display">显示</string>
+    <string name="section_network">网络</string>
+
+    <string name="delete_confirm_title">删除虚拟机？</string>
+    <string name="delete_confirm_body">将删除虚拟机配置、NVRAM 以及应用目录内导入的文件。应用目录之外的磁盘镜像不会被删除。</string>
+    <string name="delete_done">已删除</string>
+    <string name="saved">已保存</string>
+
+    <string name="settings_bootstrap">QEMU 引导包</string>
+    <string name="settings_proot">PRoot 运行时</string>
+    <string name="settings_storage">存储</string>
+    <string name="settings_about">关于</string>
+    <string name="bootstrap_status_installed">已安装：QEMU %1$s · %2$s</string>
+    <string name="bootstrap_status_missing">未安装</string>
+    <string name="bootstrap_status_abi">引导包 ABI：%1$s</string>
+    <string name="proot_status_installed">PRoot 已安装（%1$s）</string>
+    <string name="proot_status_missing">PRoot 未安装</string>
+    <string name="proot_unsupported">此设备 ABI 不受支持，需要 64 位 ARM 或 x86_64 设备。</string>
+    <string name="install_from_url">下载并安装…</string>
+    <string name="install_from_zip">从本地 ZIP 安装…</string>
+    <string name="delete_bootstrap">删除引导包</string>
+    <string name="reinstall_proot">重装 PRoot</string>
+    <string name="storage_usage">引导包：%1$s\n虚拟机：%2$s</string>
+    <string name="request_all_files">授予所有文件访问权限</string>
+    <string name="all_files_granted">已授予所有文件访问权限</string>
+    <string name="about_text">IA64-Emu 是一个实验性的 Android IA-64 虚拟机应用，通过 PRoot 运行 syunnPC 的 QEMU IA-64 分支。\n\nQEMU 与 IA-64 固件使用 GNU GPL v2 许可证，PRoot 使用 GNU GPL v2 许可证。应用不包含任何客户机操作系统或商业固件，请自行合法获取。\n\nIA-64 目标仍处于实验阶段，TCG 模拟速度较慢。运行桌面系统建议使用 8 GiB 以上内存的 64 位设备。</string>
+
+    <string name="dialog_install_title">安装 QEMU 引导包</string>
+    <string name="download_url_hint">https://github.com/…/bootstrap-arm64-v8a.zip</string>
+    <string name="download_url_label">引导包 ZIP 地址</string>
+    <string name="start_download">下载并安装</string>
+    <string name="choose_zip">选择 ZIP…</string>
+    <string name="installing">正在安装…</string>
+    <string name="install_success">引导包安装完成</string>
+    <string name="install_failed">安装失败：%1$s</string>
+    <string name="download_settings_hint">可使用本仓库的 GitHub Actions 工作流构建引导包，也可以导入其他来源的引导包 ZIP。</string>
+
+    <string name="display_waiting">正在等待 QEMU…</string>
+    <string name="display_not_running">此虚拟机未运行。</string>
+    <string name="display_start">启动虚拟机</string>
+    <string name="display_extra_keys">按键</string>
+    <string name="display_ctrl_alt_del">Ctrl+Alt+Del</string>
+    <string name="display_serial">串口</string>
+    <string name="display_external">共享 VNC</string>
+    <string name="display_copy_address">复制 VNC 地址</string>
+    <string name="display_vnc_external">外部 VNC：%1$s</string>
+    <string name="display_vnc_local">本机 VNC：127.0.0.1:%1$d</string>
+    <string name="extra_keys_title">发送按键</string>
+    <string name="modifier_hint">修饰键会锁定，作用于下一个按键。</string>
+    <string name="toast_copied">已复制</string>
+    <string name="toast_no_external_app">未找到可用的外部 VNC 应用</string>
+
+    <string name="serial_tab_serial">串口</string>
+    <string name="serial_tab_qemu">QEMU 日志</string>
+    <string name="serial_empty">暂时没有输出。</string>
+    <string name="serial_hint">串口输出会写入文件并自动刷新。</string>
+
+    <string name="error_no_abi">此设备不是 arm64-v8a 或 x86_64，无法运行 IA-64 模拟。</string>
+    <string name="error_bootstrap_required">请先安装 QEMU 引导包。</string>
+    <string name="msg_install_first">请先在设置中安装 QEMU 引导包。</string>
+    <string name="msg_vm_running">已有其他虚拟机在运行，请先停止它。</string>
+    <string name="msg_file_copying">正在将 %1$s 导入虚拟机目录…</string>
+    <string name="msg_file_imported">已导入到虚拟机目录</string>
+    <string name="msg_file_failed">无法访问所选文件</string>
+    <string name="msg_no_import">使用共享存储之外的路径时 QEMU 可能无法读取</string>
+    <string name="msg_nvram_reset">下次启动时将重置 EFI NVRAM。</string>
+    <string name="msg_unsupported_file">不支持的文件</string>
+    <string name="msg_starting">正在启动…</string>
+
+    <string name="vnc_disconnected">VNC 已断开：%1$s</string>
+    <string name="vnc_hint_touch">点击 = 左键 · 长按 = 右键 · 双指滑动 = 滚轮</string>
+
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">下一页</string>
+    <string name="previous">上一页</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet.</string>
+    <string name="display_reconnect">重新连接</string>
+    <string name="display_open_external">打开外部 VNC 应用</string>
+</resources>
+
+

@@ -1,0 +1,153 @@
+<resources>
+    <string name="app_name">IA64-Emu</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="nav_vm_list">Virtual machines</string>
+    <string name="nav_vm_edit">Edit VM</string>
+    <string name="nav_vm_new">New VM</string>
+    <string name="nav_display">Display</string>
+    <string name="nav_serial">Serial console</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="vm_list_empty_title">No virtual machines yet</string>
+    <string name="vm_list_empty_body">Create an IA-64 VM, then attach a disk or ISO image and boot it with the bundled QEMU.</string>
+    <string name="bootstrap_missing_title">QEMU bootstrap not installed</string>
+    <string name="bootstrap_missing_body">Download an IA64-Emu bootstrap package first. It contains qemu-system-ia64, the IA-64 EFI firmware and the guest C library.</string>
+    <string name="bootstrap_ready_title">QEMU bootstrap ready</string>
+    <string name="install_bootstrap">Install bootstrap</string>
+    <string name="fab_new_vm">New VM</string>
+
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
+    <string name="btn_display">Display</string>
+    <string name="btn_edit">Edit</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_browse">Browse…</string>
+    <string name="btn_clear">Clear</string>
+    <string name="btn_close">Close</string>
+
+    <string name="status_running">Running</string>
+    <string name="status_starting">Starting</string>
+    <string name="status_stopping">Stopping</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="status_error">Error</string>
+
+    <string name="label_name">Name</string>
+    <string name="hint_name">My Itanium VM</string>
+    <string name="label_machine">Machine</string>
+    <string name="label_cpu">CPU model</string>
+    <string name="label_memory">Memory</string>
+    <string name="label_cpus">vCPUs</string>
+    <string name="label_video">Video adapter</string>
+    <string name="label_ati_model">ATI model</string>
+    <string name="label_resolution">Resolution</string>
+    <string name="label_width">Width</string>
+    <string name="label_height">Height</string>
+    <string name="label_disk1">Disk 1</string>
+    <string name="label_disk2">Disk 2</string>
+    <string name="label_cdrom">CD / DVD image</string>
+    <string name="btn_create_disk">New disk…</string>
+    <string name="dialog_new_disk">Create a blank disk</string>
+    <string name="label_disk_name">File name</string>
+    <string name="label_disk_size_gb">Size (GiB)</string>
+    <string name="btn_create">Create</string>
+    <string name="disk_created">Disk created</string>
+    <string name="disk_exists">A file with this name already exists</string>
+    <string name="disk_slots_full">Disk 1 and Disk 2 are already configured</string>
+    <string name="disk_size_invalid">Enter a size between 1 and 2048 GiB</string>
+    <string name="label_network">User-mode networking</string>
+    <string name="label_nic_model">NIC model</string>
+    <string name="label_serial_console">Use serial as firmware console</string>
+    <string name="label_expose_vnc">Expose VNC on the local network</string>
+    <string name="label_vnc_address">Connect to VNC address (optional)</string>
+    <string name="hint_vnc_address">192.168.1.20:5900</string>
+    <string name="label_extra_args">Extra QEMU arguments</string>
+    <string name="hint_extra_args">-device usb-tablet</string>
+    <string name="label_reset_nvram">Reset EFI NVRAM on save</string>
+    <string name="label_advanced">Advanced</string>
+    <string name="section_storage">Storage</string>
+    <string name="section_display">Display</string>
+    <string name="section_network">Network</string>
+
+    <string name="delete_confirm_title">Delete virtual machine?</string>
+    <string name="delete_confirm_body">The VM configuration, NVRAM and imported files in the app directory will be deleted. Disk images outside the app directory are kept.</string>
+    <string name="delete_done">Deleted</string>
+    <string name="saved">Saved</string>
+
+    <string name="settings_bootstrap">QEMU bootstrap</string>
+    <string name="settings_proot">PRoot runtime</string>
+    <string name="settings_storage">Storage</string>
+    <string name="settings_about">About</string>
+    <string name="bootstrap_status_installed">Installed: QEMU %1$s · %2$s</string>
+    <string name="bootstrap_status_missing">Not installed</string>
+    <string name="bootstrap_status_abi">Package ABI: %1$s</string>
+    <string name="proot_status_installed">PRoot is installed (%1$s)</string>
+    <string name="proot_status_missing">PRoot is not installed</string>
+    <string name="proot_unsupported">This device ABI is not supported. A 64-bit ARM or x86_64 device is required.</string>
+    <string name="install_from_url">Download and install…</string>
+    <string name="install_from_zip">Install from local ZIP…</string>
+    <string name="delete_bootstrap">Delete bootstrap</string>
+    <string name="reinstall_proot">Reinstall PRoot</string>
+    <string name="storage_usage">Bootstrap: %1$s\nVirtual machines: %2$s</string>
+    <string name="request_all_files">Grant all-files access</string>
+    <string name="all_files_granted">All-files access granted</string>
+    <string name="about_text">IA64-Emu is an experimental IA-64 virtual machine app for Android. It runs the QEMU IA-64 fork by syunnPC inside PRoot.\n\nQEMU and the IA-64 firmware are licensed under the GNU GPL v2. PRoot is licensed under the GNU GPL v2. Guest operating systems and firmware images are not included; supply them under their own licenses.\n\nThe IA-64 target is experimental and TCG emulation is slow. Use a 64-bit device with at least 8 GiB of RAM for desktop guests.</string>
+
+    <string name="dialog_install_title">Install QEMU bootstrap</string>
+    <string name="download_url_hint">https://github.com/…/bootstrap-arm64-v8a.zip</string>
+    <string name="download_url_label">Bootstrap ZIP URL</string>
+    <string name="start_download">Download &amp; install</string>
+    <string name="choose_zip">Choose ZIP…</string>
+    <string name="installing">Installing…</string>
+    <string name="install_success">Bootstrap installed</string>
+    <string name="install_failed">Install failed: %1$s</string>
+    <string name="download_settings_hint">Build the bootstrap with the GitHub Actions workflow in this repository, or import a bootstrap ZIP produced elsewhere.</string>
+
+    <string name="display_waiting">Waiting for QEMU…</string>
+    <string name="display_not_running">This VM is not running.</string>
+    <string name="display_start">Start VM</string>
+    <string name="display_extra_keys">Keys</string>
+    <string name="display_ctrl_alt_del">Ctrl+Alt+Del</string>
+    <string name="display_serial">Serial</string>
+    <string name="display_external">Share VNC</string>
+    <string name="display_copy_address">Copy VNC address</string>
+    <string name="display_vnc_external">External VNC: %1$s</string>
+    <string name="display_vnc_local">Local VNC: 127.0.0.1:%1$d</string>
+    <string name="extra_keys_title">Send keys</string>
+    <string name="modifier_hint">Modifiers stay latched for the next key.</string>
+    <string name="toast_copied">Copied</string>
+    <string name="toast_no_external_app">No external VNC app found</string>
+
+    <string name="serial_tab_serial">Serial</string>
+    <string name="serial_tab_qemu">QEMU log</string>
+    <string name="serial_empty">No output yet.</string>
+    <string name="serial_hint">Serial console output is written to a file and refreshed automatically.</string>
+
+    <string name="error_no_abi">This device is not arm64-v8a or x86_64; IA-64 emulation is not supported.</string>
+    <string name="error_bootstrap_required">Install the QEMU bootstrap first.</string>
+    <string name="msg_install_first">Install the QEMU bootstrap in Settings before starting a VM.</string>
+    <string name="msg_vm_running">Another VM is already running. Stop it first.</string>
+    <string name="msg_file_copying">Importing %1$s into the VM directory…</string>
+    <string name="msg_file_imported">Imported to the VM directory</string>
+    <string name="msg_file_failed">Could not access the selected file</string>
+    <string name="msg_no_import">Using path outside shared storage may not be readable by QEMU</string>
+    <string name="msg_nvram_reset">EFI NVRAM will be reset on next boot.</string>
+    <string name="msg_unsupported_file">Unsupported file</string>
+    <string name="msg_starting">Starting…</string>
+
+    <string name="vnc_disconnected">VNC disconnected: %1$s</string>
+    <string name="vnc_hint_touch">Tap = left click · long press = right click · two-finger swipe = scroll</string>
+
+    <!-- Kept for the generated navigation fragments. -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet.</string>
+    <string name="display_reconnect">Reconnect</string>
+    <string name="display_open_external">Open external VNC app</string>
+</resources>
+
+
