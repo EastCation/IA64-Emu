@@ -105,6 +105,32 @@ jobs:
       - name: Clone QEMU IA-64 fork
         run: git clone --depth 1 --branch "$QEMU_REF" "$QEMU_REPOSITORY" qemu-src
 
+      - name: Prefetch FP test subprojects
+        run: |
+          set -euo pipefail
+          prefetch() {
+            url="$1"
+            rev="$2"
+            dest="$3"
+            for attempt in 1 2 3; do
+              rm -rf "$dest"
+              if git init -q "$dest" &&
+                 git -C "$dest" remote add origin "$url" &&
+                 git -C "$dest" fetch --depth 1 origin "$rev" &&
+                 git -C "$dest" checkout -q FETCH_HEAD; then
+                return 0
+              fi
+              sleep 5
+            done
+            return 1
+          }
+          sf_rev="$(sed -n 's/^revision = //p' qemu-src/subprojects/berkeley-softfloat-3.wrap)"
+          tf_rev="$(sed -n 's/^revision = //p' qemu-src/subprojects/berkeley-testfloat-3.wrap)"
+          prefetch https://github.com/qemu/berkeley-softfloat-3.git \
+            "$sf_rev" qemu-src/subprojects/berkeley-softfloat-3
+          prefetch https://github.com/qemu/berkeley-testfloat-3.git \
+            "$tf_rev" qemu-src/subprojects/berkeley-testfloat-3
+
       - name: Configure
         run: |
           mkdir build

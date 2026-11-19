@@ -121,6 +121,10 @@ object QemuArgs {
         args += "-display"
         args += "vnc=$bind:$vncDisplay"
 
+        // Keep the process (and the VNC display) alive when the guest halts or
+        // powers off, so the last screen and serial log remain inspectable.
+        args += "-no-shutdown"
+
         args += "-serial"
         args += "file:/vm/serial.log"
 

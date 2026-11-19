@@ -53,6 +53,7 @@ trap 'rm -rf "$STAGE"' EXIT
 ROOTFS="$STAGE/rootfs"
 mkdir -p \
     "$ROOTFS/usr/local/bin" \
+    "$ROOTFS/usr/local/etc/qemu" \
     "$ROOTFS/usr/local/share/qemu/keymaps" \
     "$ROOTFS/etc" \
     "$ROOTFS/root" \
@@ -166,6 +167,12 @@ EOF
 cat > "$ROOTFS/etc/resolv.conf" <<'EOF'
 nameserver 1.1.1.1
 nameserver 8.8.8.8
+EOF
+# QEMU's get_relocated_path() probes this file. Creating the directory is
+# enough to turn PRoot's ENOSYS on a missing path into the ENOENT that QEMU
+# ignores; the empty file also works on other proot versions.
+cat > "$ROOTFS/usr/local/etc/qemu/qemu.conf" <<'EOF'
+# IA64-Emu bootstrap: system-wide QEMU configuration
 EOF
 
 # --------------------------------------------------------------- manifest --

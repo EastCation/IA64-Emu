@@ -3,6 +3,7 @@ package cn.moerain.ia64emu.vnc
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.DataInputStream
@@ -133,6 +134,15 @@ class RfbClient(
                     throw IOException("不支持的 VNC 认证类型: ${types.joinToString()}")
                 }
                 out.flush()
+                // RFB 3.8 sends a SecurityResult even for the None type.
+                // QEMU does this as well; consuming it is required before
+                // ClientInit, otherwise ServerInit is misaligned.
+                if (minor >= 8) {
+                    val result = input.readInt()
+                    if (result != 0) {
+                        throw IOException("VNC 认证失败: ${readReason(input)}")
+                    }
+                }
             } else {
                 val type = input.readInt()
                 if (type != 1) {
@@ -156,9 +166,11 @@ class RfbClient(
             sendSetPixelFormat()
             sendSetEncodings()
             sendFramebufferUpdateRequest(incremental = false, width, height)
+            Log.i(TAG, "connected ${width}x$height name=$name")
 
             main.post { listener.onConnected(width, height, name) }
 
+            var frames = 0
             while (running) {
                 val type = input.readUnsignedByte()
                 when (type) {
@@ -181,6 +193,10 @@ class RfbClient(
                                 }
                                 else -> throw IOException("服务器使用了未请求的编码: $encoding")
                             }
+                        }
+                        frames++
+                        if (frames == 1 || frames % 120 == 0) {
+                            Log.d(TAG, "framebuffer update #$frames")
                         }
                         main.post { listener.onFrame() }
                         val bmp = bitmap
@@ -213,6 +229,7 @@ class RfbClient(
                     is java.net.ConnectException -> "无法连接 VNC: ${e.message ?: host}"
                     else -> e.message ?: e.javaClass.simpleName
                 }
+                Log.w(TAG, "VNC closed: $message", e)
                 main.post { listener.onClosed(message) }
             }
         } finally {
@@ -344,5 +361,9 @@ class RfbClient(
         runCatching { socket?.close() }
         socket = null
         output = null
+    }
+
+    companion object {
+        private const val TAG = "IA64VNC"
     }
 }
