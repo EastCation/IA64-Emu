@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import cn.moerain.ia64emu.R
 import cn.moerain.ia64emu.data.Cpus
 import cn.moerain.ia64emu.data.Machines
+import cn.moerain.ia64emu.data.StorageBuses
 import cn.moerain.ia64emu.data.VmConfig
 import cn.moerain.ia64emu.data.VmStore
 import cn.moerain.ia64emu.databinding.FragmentVmEditBinding
@@ -82,6 +83,7 @@ class VmEditFragment : Fragment() {
             val machine = Machines.all[position]
             binding.dropdownCpu.setSimpleItems(Cpus.forMachine(machine.id).toTypedArray())
             binding.dropdownCpu.setText(machine.defaultCpu, false)
+            updateStorageBusItems(machine.id)
             binding.sliderRam.value = clampRam(machine.defaultRamMb)
             val max = machine.maxCpus.coerceAtMost(16)
             binding.sliderCpus.valueTo = max.toFloat().coerceAtLeast(2f)
@@ -105,6 +107,7 @@ class VmEditFragment : Fragment() {
         val cpus = Cpus.forMachine(machineInfo.id)
         binding.dropdownCpu.setSimpleItems(cpus.toTypedArray())
         binding.dropdownCpu.setText(if (cpus.contains(vm.cpu)) vm.cpu else machineInfo.defaultCpu, false)
+        updateStorageBusItems(machineInfo.id, vm.storageBus)
         binding.sliderRam.value = clampRam(vm.memoryMb)
         val maxCpus = Machines.find(vm.machine).maxCpus.coerceAtMost(16).coerceAtLeast(1)
         binding.sliderCpus.valueTo = maxCpus.toFloat().coerceAtLeast(2f)
@@ -234,6 +237,13 @@ class VmEditFragment : Fragment() {
             .show()
     }
 
+    private fun updateStorageBusItems(machineId: String, preferred: String = "auto") {
+        val options = StorageBuses.optionsFor(machineId)
+        binding.dropdownStorageBus.setSimpleItems(options.map { it.label }.toTypedArray())
+        val id = if (options.any { it.id == preferred }) preferred else "auto"
+        binding.dropdownStorageBus.setText(StorageBuses.labelFor(machineId, id), false)
+    }
+
     private fun updateRamLabel() {
         binding.textRamValue.text =
             getString(R.string.label_memory) + ": " + binding.sliderRam.value.roundToInt() + " MiB"
@@ -305,6 +315,10 @@ class VmEditFragment : Fragment() {
             disk1 = binding.editDisk1.text?.toString()?.trim().orEmpty(),
             disk2 = binding.editDisk2.text?.toString()?.trim().orEmpty(),
             cdrom = binding.editCdrom.text?.toString()?.trim().orEmpty(),
+            storageBus = StorageBuses.idForLabel(
+                machine.id,
+                binding.dropdownStorageBus.text?.toString().orEmpty(),
+            ),
             nicEnabled = binding.switchNetwork.isChecked,
             nicModel = binding.dropdownNic.text?.toString()?.ifBlank { "e1000" } ?: "e1000",
             serialConsole = binding.switchSerial.isChecked,

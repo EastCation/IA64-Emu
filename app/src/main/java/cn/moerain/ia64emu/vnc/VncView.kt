@@ -26,6 +26,9 @@ class VncView @JvmOverloads constructor(
     var statusListener: ((String) -> Unit)? = null
 
     private var client: RfbClient? = null
+    private var host: String? = null
+    private var port = 0
+    private var autoReconnect = true
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
     private val dst = RectF()
     private val handler = Handler(Looper.getMainLooper())
@@ -55,8 +58,24 @@ class VncView @JvmOverloads constructor(
         setBackgroundColor(0xff000000.toInt())
     }
 
+    private val reconnect = Runnable {
+        val host = host
+        if (autoReconnect && host != null) {
+            startClient(host, port)
+        }
+    }
+
     fun connect(host: String, port: Int) {
-        disconnect()
+        stopClient()
+        handler.removeCallbacks(reconnect)
+        this.host = host
+        this.port = port
+        autoReconnect = true
+        startClient(host, port)
+    }
+
+    private fun startClient(host: String, port: Int) {
+        stopClient()
         val rfb = RfbClient(host, port, object : RfbClient.Listener {
             override fun onConnected(width: Int, height: Int, name: String) {
                 statusListener?.invoke("")
@@ -69,6 +88,10 @@ class VncView @JvmOverloads constructor(
 
             override fun onClosed(message: String) {
                 statusListener?.invoke(message)
+                if (autoReconnect) {
+                    statusListener?.invoke("连接已断开，正在重连…")
+                    handler.postDelayed(reconnect, 1500)
+                }
             }
         })
         client = rfb
@@ -76,10 +99,18 @@ class VncView @JvmOverloads constructor(
         requestFocus()
     }
 
-    fun disconnect() {
+    private fun stopClient() {
         client?.stop()
         client = null
         handler.removeCallbacks(longPress)
+        handler.removeCallbacks(reconnect)
+        postInvalidate()
+    }
+
+    fun disconnect() {
+        autoReconnect = false
+        host = null
+        stopClient()
         statusListener?.invoke("")
         postInvalidate()
     }
@@ -94,6 +125,10 @@ class VncView @JvmOverloads constructor(
 
     fun sendCombo(vararg keysyms: Int) {
         client?.sendCombo(*keysyms)
+    }
+
+    fun sendText(text: String) {
+        client?.sendText(text)
     }
 
     override fun onDraw(canvas: Canvas) {

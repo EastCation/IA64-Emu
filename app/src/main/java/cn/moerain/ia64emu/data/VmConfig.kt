@@ -18,6 +18,7 @@ data class VmConfig(
     var disk1: String = "",
     var disk2: String = "",
     var cdrom: String = "",
+    var storageBus: String = "auto",
     var nicEnabled: Boolean = true,
     var nicModel: String = "e1000",
     var serialConsole: Boolean = false,
@@ -55,6 +56,7 @@ data class VmConfig(
         put("disk1", disk1)
         put("disk2", disk2)
         put("cdrom", cdrom)
+        put("storageBus", storageBus)
         put("nicEnabled", nicEnabled)
         put("nicModel", nicModel)
         put("serialConsole", serialConsole)
@@ -93,6 +95,7 @@ data class VmConfig(
             disk1 = json.optString("disk1"),
             disk2 = json.optString("disk2"),
             cdrom = json.optString("cdrom"),
+            storageBus = json.optString("storageBus").ifBlank { "auto" },
             nicEnabled = json.optBoolean("nicEnabled", true),
             nicModel = json.optString("nicModel").ifBlank { "e1000" },
             serialConsole = json.optBoolean("serialConsole", false),

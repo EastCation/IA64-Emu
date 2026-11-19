@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_ime"
+        android:icon="@drawable/ic_keyboard"
+        android:title="@string/display_ime"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_text_input"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/display_text_input"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_serial"
+        android:icon="@drawable/ic_terminal"
+        android:title="@string/display_serial"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_media"
+        android:icon="@drawable/ic_folder"
+        android:title="@string/display_media"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_stop"
+        android:icon="@drawable/ic_stop"
+        android:title="@string/btn_stop"
+        app:showAsAction="never" />
+</menu>

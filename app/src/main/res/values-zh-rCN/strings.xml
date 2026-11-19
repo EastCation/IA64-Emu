@@ -65,6 +65,7 @@
     <string name="hint_vnc_address">192.168.1.20:5900</string>
     <string name="label_extra_args">额外 QEMU 参数</string>
     <string name="hint_extra_args">-device usb-tablet</string>
+    <string name="label_storage_bus">存储总线</string>
     <string name="label_reset_nvram">保存时重置 EFI NVRAM</string>
     <string name="label_advanced">高级</string>
     <string name="section_storage">存储</string>
@@ -109,6 +110,9 @@
     <string name="display_not_running">此虚拟机未运行。</string>
     <string name="display_start">启动虚拟机</string>
     <string name="display_extra_keys">按键</string>
+    <string name="display_ime">输入法</string>
+    <string name="display_text_input">文本</string>
+    <string name="display_media">介质</string>
     <string name="display_ctrl_alt_del">Ctrl+Alt+Del</string>
     <string name="display_serial">串口</string>
     <string name="display_external">共享 VNC</string>
@@ -122,6 +126,28 @@
 
     <string name="serial_tab_serial">串口</string>
     <string name="serial_tab_qemu">QEMU 日志</string>
+    <string name="serial_tab_monitor">监控器</string>
+    <string name="monitor_hint">HMP 命令：help、info status、info block、change cdrom0 /路径.iso、eject cdrom0</string>
+    <string name="monitor_command_hint">输入监控器命令</string>
+    <string name="btn_send_command">发送</string>
+    <string name="monitor_not_running">QEMU 监控器不可用，请先启动虚拟机。</string>
+    <string name="monitor_connected">QEMU 监控器已连接。</string>
+
+    <string name="text_input_title">发送文本</string>
+    <string name="text_input_hint">输入要发送到客户机的文本</string>
+    <string name="text_input_note">已提交的文本会替换输入法组合内容；非 ASCII 字符以 X11 Unicode keysym 发送。</string>
+    <string name="btn_send">发送</string>
+
+    <string name="media_title">可移动介质</string>
+    <string name="media_current">CD/DVD：%1$s</string>
+    <string name="media_none">未插入介质</string>
+    <string name="media_change">更换 ISO…</string>
+    <string name="media_eject">弹出</string>
+    <string name="media_changed">已更换 CD/DVD 镜像</string>
+    <string name="media_ejected">已弹出 CD/DVD</string>
+    <string name="media_not_running">请先启动虚拟机再更换介质。</string>
+    <string name="media_importing">正在导入镜像…</string>
+    <string name="media_failed">更换介质失败：%1$s</string>
     <string name="serial_empty">暂时没有输出。</string>
     <string name="serial_hint">串口输出会写入文件并自动刷新。</string>
 

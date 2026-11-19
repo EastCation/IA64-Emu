@@ -37,10 +37,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.appBar.visibility =
-                if (destination.id == R.id.vmDisplayFragment) android.view.View.GONE
-                else android.view.View.VISIBLE
+        navController.addOnDestinationChangedListener { _, _, _ ->
             invalidateOptionsMenu()
         }
 

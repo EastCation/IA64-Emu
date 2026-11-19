@@ -6,12 +6,14 @@ import android.os.Looper
 import android.util.Log
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.EOFException
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.concurrent.LinkedBlockingQueue
 
 class RfbClient(
     private val host: String,
@@ -40,8 +42,11 @@ class RfbClient(
     @Volatile
     private var socket: Socket? = null
 
+    @Volatile
     private var output: DataOutputStream? = null
     private var thread: Thread? = null
+    private var writerThread: Thread? = null
+    private val writeQueue = LinkedBlockingQueue<ByteArray>()
 
     fun connect() {
         if (thread != null) return
@@ -59,33 +64,21 @@ class RfbClient(
     }
 
     fun sendPointer(mask: Int, x: Int, y: Int) {
-        val out = output ?: return
-        try {
-            synchronized(writeLock) {
-                out.writeByte(5)
-                out.writeByte(mask)
-                out.writeShort(x.coerceIn(0, 0xffff))
-                out.writeShort(y.coerceIn(0, 0xffff))
-                out.flush()
-            }
-        } catch (_: IOException) {
-            closeQuietly()
+        enqueue { out ->
+            out.writeByte(5)
+            out.writeByte(mask)
+            out.writeShort(x.coerceIn(0, 0xffff))
+            out.writeShort(y.coerceIn(0, 0xffff))
         }
     }
 
     fun sendKey(keysym: Int, down: Boolean) {
         if (keysym == 0) return
-        val out = output ?: return
-        try {
-            synchronized(writeLock) {
-                out.writeByte(4)
-                out.writeByte(if (down) 1 else 0)
-                out.writeByte(0)
-                out.writeInt(keysym)
-                out.flush()
-            }
-        } catch (_: IOException) {
-            closeQuietly()
+        enqueue { out ->
+            out.writeByte(4)
+            out.writeByte(if (down) 1 else 0)
+            out.writeByte(0)
+            out.writeInt(keysym)
         }
     }
 
@@ -97,6 +90,15 @@ class RfbClient(
     fun sendCombo(vararg keysyms: Int) {
         keysyms.forEach { sendKey(it, true) }
         keysyms.reversed().forEach { sendKey(it, false) }
+    }
+
+    fun sendText(text: String) {
+        for (ch in text) {
+            val key = KeyMap.forChar(ch) ?: continue
+            if (key.shift) sendKey(KeyMap.XK_SHIFT_L, true)
+            sendKeyTap(key.keysym)
+            if (key.shift) sendKey(KeyMap.XK_SHIFT_L, false)
+        }
     }
 
     private fun run() {
@@ -166,6 +168,7 @@ class RfbClient(
             sendSetPixelFormat()
             sendSetEncodings()
             sendFramebufferUpdateRequest(incremental = false, width, height)
+            startWriter()
             Log.i(TAG, "connected ${width}x$height name=$name")
 
             main.post { listener.onConnected(width, height, name) }
@@ -356,8 +359,46 @@ class RfbClient(
         }
     }
 
+    private fun enqueue(build: (DataOutputStream) -> Unit) {
+        if (!running) return
+        val buffer = ByteArrayOutputStream()
+        val out = DataOutputStream(buffer)
+        build(out)
+        out.flush()
+        writeQueue.offer(buffer.toByteArray())
+    }
+
+    private fun startWriter() {
+        if (writerThread != null) return
+        writerThread = Thread({
+            while (running) {
+                val data = try {
+                    writeQueue.take()
+                } catch (_: InterruptedException) {
+                    break
+                }
+                try {
+                    synchronized(writeLock) {
+                        val out = output ?: break
+                        out.write(data)
+                        out.flush()
+                    }
+                } catch (_: IOException) {
+                    closeQuietly()
+                    break
+                }
+            }
+        }, "rfb-writer").also {
+            it.isDaemon = true
+            it.start()
+        }
+    }
+
     private fun closeQuietly() {
         running = false
+        writerThread?.interrupt()
+        writerThread = null
+        writeQueue.clear()
         runCatching { socket?.close() }
         socket = null
         output = null

@@ -10,6 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <cn.moerain.ia64emu.vnc.VncInputView
+        android:id="@+id/vncInput"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:layout_gravity="bottom|start"
+        android:alpha="0.01"
+        android:background="@null"
+        android:cursorVisible="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine"
+        android:maxLines="1"
+        android:textColor="@android:color/transparent"
+        android:textColorHint="@android:color/transparent" />
+
     <LinearLayout
         android:id="@+id/statusPanel"
         android:layout_width="wrap_content"
@@ -71,11 +87,19 @@
                 android:textColor="#FFFFFFFF" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCtrlAltDel"
+                android:id="@+id/btnIme"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/display_ctrl_alt_del"
+                android:text="@string/display_ime"
+                android:textColor="#FFFFFFFF" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTextInput"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/display_text_input"
                 android:textColor="#FFFFFFFF" />
 
             <com.google.android.material.button.MaterialButton
@@ -84,6 +108,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/display_serial"
+                android:textColor="#FFFFFFFF" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCtrlAltDel"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/display_ctrl_alt_del"
+                android:textColor="#FFFFFFFF" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMedia"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/display_media"
                 android:textColor="#FFFFFFFF" />
 
             <com.google.android.material.button.MaterialButton

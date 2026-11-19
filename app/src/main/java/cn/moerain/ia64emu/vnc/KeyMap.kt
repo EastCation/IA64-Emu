@@ -2,6 +2,8 @@ package cn.moerain.ia64emu.vnc
 
 import android.view.KeyEvent
 
+data class CharKey(val keysym: Int, val shift: Boolean)
+
 object KeyMap {
 
     const val XK_SHIFT_L = 0xffe1
@@ -26,6 +28,38 @@ object KeyMap {
 
     fun forKeyEvent(event: KeyEvent): Int? =
         forKeyCode(event.keyCode, event.unicodeChar)
+
+    /**
+     * Maps a character to an X11 keysym plus the Shift modifier that a US
+     * keyboard would need. Used by the text-input dialog.
+     */
+    fun forChar(ch: Char): CharKey? {
+        when (ch) {
+            '\r' -> return null
+            '\n' -> return CharKey(XK_RETURN, false)
+            '\t' -> return CharKey(XK_TAB, false)
+            '\b' -> return CharKey(XK_BACKSPACE, false)
+            ' ' -> return CharKey(0x20, false)
+        }
+        if (ch in 'a'..'z') return CharKey(ch.code, false)
+        if (ch in 'A'..'Z') return CharKey(ch.lowercaseChar().code, true)
+        if (ch in '0'..'9') return CharKey(ch.code, false)
+
+        val shifted = mapOf(
+            '!' to '1', '@' to '2', '#' to '3', '$' to '4', '%' to '5',
+            '^' to '6', '&' to '7', '*' to '8', '(' to '9', ')' to '0',
+            '_' to '-', '+' to '=', '{' to '[', '}' to ']', '|' to '\\',
+            ':' to ';', '"' to '\'', '<' to ',', '>' to '.', '?' to '/',
+            '~' to '`',
+        )
+        shifted[ch]?.let { return CharKey(it.code, true) }
+
+        val unshifted = "`-=[]\\;',./"
+        if (ch in unshifted) return CharKey(ch.code, false)
+        if (ch.code in 0x20..0x7e) return CharKey(ch.code, false)
+        if (ch.code in 0x80..0xff) return CharKey(ch.code, false)
+        return CharKey(0x01000000 or ch.code, false)
+    }
 
     fun forKeyCode(keyCode: Int, unicodeChar: Int = 0): Int? {
         if (keyCode == KeyEvent.KEYCODE_UNKNOWN && unicodeChar == 0) return null
@@ -67,6 +101,10 @@ object KeyMap {
             KeyEvent.KEYCODE_NUM_LOCK -> return 0xff7f
             KeyEvent.KEYCODE_SYSRQ -> return 0xff61
             KeyEvent.KEYCODE_MENU -> return 0xff67
+            KeyEvent.KEYCODE_AT -> return 0x40
+            KeyEvent.KEYCODE_POUND -> return 0x23
+            KeyEvent.KEYCODE_BREAK -> return 0xff6b
+            KeyEvent.KEYCODE_SCROLL_LOCK -> return 0xff14
             KeyEvent.KEYCODE_COMMA -> return 0x2c
             KeyEvent.KEYCODE_PERIOD -> return 0x2e
             KeyEvent.KEYCODE_SLASH -> return 0x2f
@@ -78,6 +116,7 @@ object KeyMap {
             KeyEvent.KEYCODE_MINUS,
             KeyEvent.KEYCODE_NUMPAD_SUBTRACT -> return 0x2d
             KeyEvent.KEYCODE_EQUALS -> return 0x3d
+            KeyEvent.KEYCODE_NUMPAD_ADD -> return 0x2b
             KeyEvent.KEYCODE_GRAVE -> return 0x60
             KeyEvent.KEYCODE_STAR -> return 0x2a
             KeyEvent.KEYCODE_PLUS -> return 0x2b

@@ -65,6 +65,7 @@
     <string name="hint_vnc_address">192.168.1.20:5900</string>
     <string name="label_extra_args">Extra QEMU arguments</string>
     <string name="hint_extra_args">-device usb-tablet</string>
+    <string name="label_storage_bus">Storage bus</string>
     <string name="label_reset_nvram">Reset EFI NVRAM on save</string>
     <string name="label_advanced">Advanced</string>
     <string name="section_storage">Storage</string>
@@ -109,6 +110,9 @@
     <string name="display_not_running">This VM is not running.</string>
     <string name="display_start">Start VM</string>
     <string name="display_extra_keys">Keys</string>
+    <string name="display_ime">Keyboard</string>
+    <string name="display_text_input">Text</string>
+    <string name="display_media">Media</string>
     <string name="display_ctrl_alt_del">Ctrl+Alt+Del</string>
     <string name="display_serial">Serial</string>
     <string name="display_external">Share VNC</string>
@@ -122,6 +126,28 @@
 
     <string name="serial_tab_serial">Serial</string>
     <string name="serial_tab_qemu">QEMU log</string>
+    <string name="serial_tab_monitor">Monitor</string>
+    <string name="monitor_hint">HMP commands: help, info status, info block, change cdrom0 /path/to.iso, eject cdrom0</string>
+    <string name="monitor_command_hint">Enter a monitor command</string>
+    <string name="btn_send_command">Send</string>
+    <string name="monitor_not_running">The QEMU monitor is unavailable. Start the VM first.</string>
+    <string name="monitor_connected">QEMU monitor connected.</string>
+
+    <string name="text_input_title">Send text</string>
+    <string name="text_input_hint">Type text to send to the guest</string>
+    <string name="text_input_note">Committed text replaces IME composition. Non-ASCII characters are sent as X11 Unicode keysyms.</string>
+    <string name="btn_send">Send</string>
+
+    <string name="media_title">Removable media</string>
+    <string name="media_current">CD/DVD: %1$s</string>
+    <string name="media_none">No media inserted</string>
+    <string name="media_change">Change ISO…</string>
+    <string name="media_eject">Eject</string>
+    <string name="media_changed">CD/DVD image changed</string>
+    <string name="media_ejected">CD/DVD ejected</string>
+    <string name="media_not_running">Start the VM before changing media.</string>
+    <string name="media_importing">Importing image…</string>
+    <string name="media_failed">Media change failed: %1$s</string>
     <string name="serial_empty">No output yet.</string>
     <string name="serial_hint">Serial console output is written to a file and refreshed automatically.</string>
 

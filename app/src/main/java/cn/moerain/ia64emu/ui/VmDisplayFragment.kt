@@ -1,13 +1,20 @@
 package cn.moerain.ia64emu.ui
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import cn.moerain.ia64emu.R
 import cn.moerain.ia64emu.bootstrap.Bootstrap
@@ -15,13 +22,18 @@ import cn.moerain.ia64emu.data.VmConfig
 import cn.moerain.ia64emu.data.VmStore
 import cn.moerain.ia64emu.databinding.FragmentVmDisplayBinding
 import cn.moerain.ia64emu.runtime.QemuRuntime
+import cn.moerain.ia64emu.runtime.QmpClient
 import cn.moerain.ia64emu.runtime.RunState
 import cn.moerain.ia64emu.runtime.RunStatus
+import cn.moerain.ia64emu.util.FileImporter
 import cn.moerain.ia64emu.util.Util
 import cn.moerain.ia64emu.vnc.KeyMap
+import cn.moerain.ia64emu.vnc.VncInputView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
-class VmDisplayFragment : Fragment() {
+class VmDisplayFragment : Fragment(), MenuProvider {
 
     private var _binding: FragmentVmDisplayBinding? = null
     private val binding get() = _binding!!
@@ -29,6 +41,10 @@ class VmDisplayFragment : Fragment() {
     private val store by lazy { VmStore(requireContext()) }
     private var config: VmConfig? = null
     private var lastConnectKey: String? = null
+
+    private val pickIso = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) importIso(uri)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +63,9 @@ class VmDisplayFragment : Fragment() {
         (activity as? AppCompatActivity)?.supportActionBar?.title = vm?.name ?: getString(R.string.nav_display)
 
         binding.vncView.statusListener = { message ->
-            if (message.isNotBlank()) {
+            if (message.isBlank()) {
+                hideStatus()
+            } else {
                 showStatus(message, reconnect = true)
             }
         }
@@ -59,6 +77,22 @@ class VmDisplayFragment : Fragment() {
         binding.btnKeys.setOnClickListener {
             ExtraKeysDialog.show(requireContext(), binding.vncView)
         }
+        binding.vncInput.sink = object : VncInputView.Sink {
+            override fun sendKey(keysym: Int, down: Boolean) {
+                binding.vncView.sendKey(keysym, down)
+            }
+
+            override fun sendText(text: String) {
+                binding.vncView.sendText(text)
+            }
+        }
+        binding.btnIme.setOnClickListener { binding.vncInput.toggleIme() }
+        binding.vncView.setOnTouchListener { _, _ ->
+            binding.vncInput.hideIme()
+            false
+        }
+        binding.btnTextInput.setOnClickListener { showTextInputDialog() }
+        binding.btnMedia.setOnClickListener { showMediaDialog() }
         binding.btnSerial.setOnClickListener {
             val id = config?.id ?: return@setOnClickListener
             findNavController().navigate(R.id.serialFragment, bundleOf("vmId" to id))
@@ -84,7 +118,39 @@ class VmDisplayFragment : Fragment() {
 
         QemuRuntime.state.observe(viewLifecycleOwner) { state -> render(state) }
 
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_display, menu)
+    }
+
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
+        val vm = config ?: return false
+        return when (item.itemId) {
+            R.id.action_ime -> {
+                binding.vncInput.toggleIme()
+                true
+            }
+            R.id.action_text_input -> {
+                showTextInputDialog()
+                true
+            }
+            R.id.action_serial -> {
+                findNavController().navigate(R.id.serialFragment, bundleOf("vmId" to vm.id))
+                true
+            }
+            R.id.action_media -> {
+                showMediaDialog()
+                true
+            }
+            R.id.action_stop -> {
+                Util.stopVm(requireContext())
+                true
+            }
+            else -> false
+        }
     }
 
     private fun render(state: RunState) {
@@ -170,6 +236,99 @@ class VmDisplayFragment : Fragment() {
         binding.statusPanel.visibility = View.GONE
     }
 
+    private fun showTextInputDialog() {
+        val context = requireContext()
+        val layout = TextInputLayout(context).apply {
+            hint = context.getString(R.string.text_input_hint)
+        }
+        val input = TextInputEditText(context).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 2
+            maxLines = 6
+        }
+        layout.addView(input)
+        MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.text_input_title)
+            .setMessage(R.string.text_input_note)
+            .setView(layout)
+            .setNegativeButton(R.string.btn_cancel, null)
+            .setPositiveButton(R.string.btn_send) { _, _ ->
+                val text = input.text?.toString().orEmpty()
+                if (text.isNotEmpty()) {
+                    binding.vncView.sendText(text)
+                }
+                binding.vncView.requestFocus()
+            }
+            .show()
+    }
+
+    private fun showMediaDialog() {
+        val vm = config ?: return
+        val state = QemuRuntime.current()
+        if (state.status != RunStatus.RUNNING || state.vmId != vm.id) {
+            Util.toast(requireContext(), getString(R.string.media_not_running))
+            return
+        }
+        val current = vm.cdrom.ifBlank { getString(R.string.media_none) }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.media_title)
+            .setMessage(getString(R.string.media_current, current))
+            .setNegativeButton(R.string.btn_cancel, null)
+            .setNeutralButton(R.string.media_eject) { _, _ -> ejectMedia(vm) }
+            .setPositiveButton(R.string.media_change) { _, _ ->
+                pickIso.launch(arrayOf("*/*"))
+            }
+            .show()
+    }
+
+    private fun importIso(uri: android.net.Uri) {
+        val vm = config ?: return
+        Util.toast(requireContext(), getString(R.string.media_importing))
+        FileImporter.importAsync(requireContext(), store, vm.id, uri) { imported ->
+            if (!isAdded) return@importAsync
+            imported.onSuccess { hostPath ->
+                val appContext = requireContext().applicationContext
+                QmpClient(appContext, store).changeMedium(vm.id, hostPath) { result ->
+                    if (!isAdded) return@changeMedium
+                    result.onSuccess {
+                        val updated = vm.copy(cdrom = hostPath)
+                        store.save(updated)
+                        config = updated
+                        Util.toast(requireContext(), getString(R.string.media_changed))
+                    }.onFailure { error ->
+                        Util.toast(
+                            requireContext(),
+                            getString(R.string.media_failed, error.message ?: ""),
+                        )
+                    }
+                }
+            }.onFailure { error ->
+                Util.toast(
+                    requireContext(),
+                    getString(R.string.media_failed, error.message ?: ""),
+                )
+            }
+        }
+    }
+
+    private fun ejectMedia(vm: VmConfig) {
+        val appContext = requireContext().applicationContext
+        QmpClient(appContext, store).eject(vm.id) { result ->
+            if (!isAdded) return@eject
+            result.onSuccess {
+                val updated = vm.copy(cdrom = "")
+                store.save(updated)
+                config = updated
+                Util.toast(requireContext(), getString(R.string.media_ejected))
+            }.onFailure { error ->
+                Util.toast(
+                    requireContext(),
+                    getString(R.string.media_failed, error.message ?: ""),
+                )
+            }
+        }
+    }
+
     private fun startVm() {
         val vm = config ?: return
         if (Bootstrap.supportedAbi() == null) {
@@ -193,6 +352,8 @@ class VmDisplayFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        requireActivity().removeMenuProvider(this)
+        binding.vncInput.hideIme()
         super.onDestroyView()
         binding.vncView.disconnect()
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

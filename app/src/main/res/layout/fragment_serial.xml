@@ -28,6 +28,14 @@
             android:layout_height="wrap_content"
             android:text="@string/serial_tab_qemu"
             android:textColor="#FFFFFFFF" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTabMonitor"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/serial_tab_monitor"
+            android:textColor="#FFFFFFFF" />
     </LinearLayout>
 
     <ScrollView
@@ -47,6 +55,39 @@
             android:textIsSelectable="true"
             android:textSize="12sp" />
     </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/monitorInputBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FF1B1B20"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:visibility="gone">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/monitorCommand"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/monitor_command_hint"
+            android:imeOptions="actionSend"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="#FFFFFFFF"
+            android:textColorHint="#80FFFFFF"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSendMonitor"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_send_command"
+            android:textColor="#FFFFFFFF" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textSerialHint"

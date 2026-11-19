@@ -130,6 +130,14 @@ jobs:
             "$sf_rev" qemu-src/subprojects/berkeley-softfloat-3
           prefetch https://github.com/qemu/berkeley-testfloat-3.git \
             "$tf_rev" qemu-src/subprojects/berkeley-testfloat-3
+          # QEMU normally applies these files as wrap patches. A pre-populated
+          # source directory skips that step, so install them ourselves.
+          for proj in berkeley-softfloat-3 berkeley-testfloat-3; do
+            cp qemu-src/subprojects/packagefiles/$proj/meson.build \
+               qemu-src/subprojects/$proj/
+            cp qemu-src/subprojects/packagefiles/$proj/meson_options.txt \
+               qemu-src/subprojects/$proj/
+          done
 
       - name: Configure
         run: |

@@ -17,13 +17,19 @@
 - CPU 型号、内存、vCPU、ATI / Quadro2 显卡、分辨率
 - 两个硬盘 + 一个 CD/DVD 镜像；`qcow2` / `raw` / `vmdk` / `vdi` / `vhdx` 自动识别
 - 可在应用内创建空白稀疏磁盘（raw），无需外部工具
+- 可手动选择存储总线（Auto / IDE-SATA / SCSI），只显示当前机型支持的总线
+- 运行中可通过 QMP 更换或弹出 CD/DVD 介质，并可通过 HMP Monitor 执行 QEMU 命令
 - 每台 VM 独立的 EFI NVRAM（保存在 VM 目录，可重置）
 - 用户模式网络（`e1000` / `e1000e` / `rtl8139`）
 - 串口控制台与 QEMU 日志实时查看
 - 内置 VNC 客户端（Raw / CopyRect / DesktopSize），支持：
   - 单指点击 = 左键，长按 = 右键，双指上下滑动 = 滚轮
   - 物理键盘输入、屏幕上的 Esc/Ctrl/Alt/Del/F1-F12 等按键
-  - Ctrl+Alt+Del
+  - 手机输入法直通（IME）：点击工具栏“Keyboard/输入法”即可用系统 QWERTY/中文输入法
+    直接输入客户机；仅提交完成的文本，不会把拼音组合串发送给客户机
+  - 文本输入、Ctrl+Alt+Del、自动重连
+- 实时 QEMU HMP Monitor（串口页的 Monitor 标签），可执行 `info status`、`info block`、
+  `change cdrom0 ...` 等命令
 - 可选“向局域网开放 VNC”，并在应用中显示局域网 VNC 地址
 - 可选“连接到外部 VNC 地址”，用内置客户端连接其他设备上的 VNC 服务
 - 引导包下载进度、若存在 `.sha256` 则自动校验、本地 ZIP 导入、PRoot 自动部署
@@ -208,6 +214,10 @@ filesDir/vms/<vmId>/
 - **启动后立即报错**：打开“串口 → QEMU 日志”查看。常见原因：磁盘路径不可读、内存超过设备可用内存、
   CPU 与机型不匹配（例如 zx2000 只支持 1 个 CPU/mckinley-900）。
 - **VNC 黑屏**：确认显卡为 ATI/Quadro2；首次启动 EFI 可能需要几十秒；也可打开串口查看固件输出。
+- **启动时报 `Could not open '.../etc/qemu/qemu.conf': Function not implemented`**：这是 PRoot 对缺失目录
+  返回 ENOSYS 导致的。官方引导包已经包含 `/usr/local/etc/qemu/qemu.conf`；自定义引导包请确保创建该目录。
+- **运行中更换 CD/DVD**：显示页顶部菜单的 Media，或 Monitor 里执行
+  `change cdrom0 /path/to/image.iso`；弹出用 `eject cdrom0`。
 - **“PRoot 文件不完整”**：设置页点“重装 PRoot”。如果设备不是 arm64-v8a / x86_64，则无法运行。
 - **网络不通**：仅支持 QEMU user-mode 网络（`-nic user`），客户机内使用 DHCP；不支持桥接/Wi-Fi 直通。
 - **中文输入**：当前通过物理键盘或屏幕按键发送 X11 keysym；未实现 Android IME 组合输入。
@@ -220,6 +230,8 @@ filesDir/vms/<vmId>/
 - 无 KVM/硬件加速；纯 TCG 软件模拟，速度取决于 CPU 单核性能。
 - 无音频、无 3D 加速、无 USB 直通、无共享文件夹。
 - 内置 VNC 客户端未实现 VNC 密码认证（QEMU 默认无密码）。
+- Monitor 是 HMP（文本命令）；QMP 只用于应用内部的介质热插拔和停止。
+- IME 的中文等非 ASCII 字符以 X11 Unicode keysym 发送，是否生效取决于客户机/固件。
 - 由于 targetSdk 28，应用不符合 Google Play 当前目标 API 要求。
 
 ## 许可证与声明

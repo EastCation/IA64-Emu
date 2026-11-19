@@ -85,24 +85,32 @@ object QemuArgs {
             }
         }
 
-        fun addDrive(path: String, optical: Boolean) {
-            if (path.isBlank()) return
-            val guest = guestPath(context, store, config.id, path)
-            val format = detectFormat(path)
-            val drive = buildString {
-                append("file=")
-                append(escape(guest))
-                append(",format=")
-                append(format)
-                if (optical) append(",media=cdrom,readonly=on")
+        fun addDrive(path: String, optical: Boolean, id: String) {
+            if (path.isBlank() && !optical) return
+            val options = mutableListOf<String>()
+            if (path.isNotBlank()) {
+                val guest = guestPath(context, store, config.id, path)
+                options += "file=${escape(guest)}"
+                options += "format=${detectFormat(path)}"
+            }
+            if (optical) {
+                options += "media=cdrom"
+                options += "readonly=on"
+            }
+            options += "id=$id"
+            when (config.storageBus) {
+                "ide" -> options += "if=ide"
+                "scsi" -> options += "if=scsi"
             }
             args += "-drive"
-            args += drive
+            args += options.joinToString(",")
         }
 
-        addDrive(config.disk1, optical = false)
-        addDrive(config.disk2, optical = false)
-        addDrive(config.cdrom, optical = true)
+        addDrive(config.disk1, optical = false, id = "hd0")
+        addDrive(config.disk2, optical = false, id = "hd1")
+        // Keep an empty CD-ROM around even without media so the Monitor and
+        // the media dialog can insert an ISO at runtime.
+        addDrive(config.cdrom, optical = true, id = "cdrom0")
 
         if (config.nicEnabled) {
             args += "-nic"
@@ -176,6 +184,8 @@ object QemuArgs {
     }
 
     fun alignWidth(width: Int): Int = (width / 8) * 8
+
+    fun diskFormat(path: String): String = detectFormat(path)
 
     private fun detectFormat(path: String): String {
         val lower = path.lowercase()

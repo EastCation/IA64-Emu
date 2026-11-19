@@ -27,6 +27,27 @@ object Machines {
     fun idForLabel(label: String): String = all.firstOrNull { it.label == label }?.id ?: all[4].id
 }
 
+data class StorageBusOption(val id: String, val label: String)
+
+object StorageBuses {
+    private val auto = StorageBusOption("auto", "Auto")
+    private val ide = StorageBusOption("ide", "IDE / SATA")
+    private val scsi = StorageBusOption("scsi", "SCSI")
+
+    fun optionsFor(machineId: String): List<StorageBusOption> = when (machineId) {
+        "hp-rx2660", "itanium-vpc" -> listOf(auto, scsi)
+        "hp-zx2000" -> listOf(auto, ide)
+        else -> listOf(auto, ide, scsi)
+    }
+
+    fun labelFor(machineId: String, id: String): String =
+        optionsFor(machineId).firstOrNull { it.id == id }?.label
+            ?: optionsFor(machineId).first().label
+
+    fun idForLabel(machineId: String, label: String): String =
+        optionsFor(machineId).firstOrNull { it.label == label }?.id ?: "auto"
+}
+
 object Cpus {
     val all = listOf(
         "merced-800",
